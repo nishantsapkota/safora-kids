@@ -82,7 +82,6 @@ prisma/               Prisma schema and migrations
 scripts/              Seed scripts
 src/components/       Shared React components
 src/lib/              Auth, session, mastery, dashboard, AI, and utility logic
-report.md             Project report with methodology and Mermaid diagrams
 ```
 
 ## Getting Started
