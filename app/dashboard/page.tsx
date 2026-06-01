@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Award, CalendarDays, Star, Target } from "lucide-react";
 import { MasteryBarChart, ScoreLineChart } from "@/components/charts";
+import { DepthExplanation } from "@/components/depth-explanation";
 import { ButtonLink, Card, ProgressBar, Stat } from "@/components/ui";
 import { getCurrentUser } from "@/lib/auth";
 import { userDashboard } from "@/lib/dashboard";
@@ -45,6 +46,7 @@ export default async function DashboardPage() {
         <Card>
           <h2 className="mb-4 text-xl font-bold">Question Depth Progress</h2>
           <MasteryBarChart data={dashboard.depthData} />
+          <DepthExplanation />
         </Card>
         <Card>
           <h2 className="text-xl font-bold">Badges</h2>

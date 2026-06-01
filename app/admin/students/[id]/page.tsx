@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { AdminShell } from "@/components/admin-shell";
 import { MasteryBarChart, ScoreLineChart } from "@/components/charts";
+import { DepthExplanation } from "@/components/depth-explanation";
 import { Card, Stat } from "@/components/ui";
 import { getCurrentUser } from "@/lib/auth";
-import { MODULES } from "@/lib/constants";
+import { BADGES, MODULES } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
 import { Award, BrainCircuit, CalendarDays, Repeat2, Star, Target } from "lucide-react";
 
@@ -36,6 +37,10 @@ export default async function AdminStudentDetailPage({ params }: { params: Promi
   });
   const averageMastery = masteryData.length ? Math.round(masteryData.reduce((sum, item) => sum + item.value, 0) / masteryData.length) : 0;
   const latestScore = student.sessions.at(-1)?.scorePercent ?? 0;
+  const earnedBadges = BADGES.filter((badge) => {
+    if (badge.module === "overall") return student.passed;
+    return (student.masteries.find((item) => item.module === badge.module)?.masteryScore ?? 0) >= 85;
+  }).map((badge) => badge.name);
   const weakConcepts = Object.entries(
     student.attempts
       .filter((attempt) => !attempt.isCorrect)
@@ -68,10 +73,16 @@ export default async function AdminStudentDetailPage({ params }: { params: Promi
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <Card><h2 className="mb-4 text-xl font-bold">Module Mastery</h2><MasteryBarChart data={masteryData} /></Card>
         <Card><h2 className="mb-4 text-xl font-bold">Session Scores</h2><ScoreLineChart data={scoreData} /></Card>
-        <Card><h2 className="mb-4 text-xl font-bold">Depth Performance</h2><MasteryBarChart data={depthData} /></Card>
+        <Card className="self-start"><h2 className="mb-4 text-xl font-bold">Depth Performance</h2><MasteryBarChart data={depthData} /><DepthExplanation /></Card>
         <Card>
           <h2 className="mb-4 flex items-center gap-2 text-xl font-bold"><BrainCircuit className="h-5 w-5 text-safety-blue" /> AI Insights</h2>
           <p className="leading-7 text-slate-700">{insight}</p>
+          <h3 className="mt-5 font-bold">Badges</h3>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {earnedBadges.length ? earnedBadges.map((badge) => (
+              <div key={badge} className="rounded-md bg-green-50 px-3 py-3 text-sm font-semibold text-green-700">{badge}</div>
+            )) : <p className="text-sm text-slate-600">No badges earned yet.</p>}
+          </div>
           <h3 className="mt-5 font-bold">Weak Concepts</h3>
           <div className="mt-3 flex flex-wrap gap-2">
             {weakConcepts.length ? weakConcepts.map(([concept, count]) => (

@@ -65,7 +65,9 @@ export function LoginForm() {
       setError((await response.json()).error ?? "Login failed");
       return;
     }
-    router.push("/dashboard");
+    const result = await response.json();
+    router.push(result.role === "admin" ? "/admin" : "/dashboard");
+    router.refresh();
   }
 
   return (

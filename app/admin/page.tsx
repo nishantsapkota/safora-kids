@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { DistributionPieChart, MasteryBarChart } from "@/components/charts";
+import { DepthExplanation } from "@/components/depth-explanation";
 import { Card, Stat } from "@/components/ui";
 import { getCurrentUser } from "@/lib/auth";
 import { adminDashboard } from "@/lib/dashboard";
@@ -36,7 +37,7 @@ export default async function AdminPage() {
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <Card><h2 className="mb-4 text-xl font-bold">Question Distribution</h2><DistributionPieChart data={data.byModule} /></Card>
         <Card><h2 className="mb-4 text-xl font-bold">Difficulty Distribution</h2><MasteryBarChart data={data.byDifficulty} percent={false} /></Card>
-        <Card><h2 className="mb-4 text-xl font-bold">Concept Depth</h2><MasteryBarChart data={data.byDepth} percent={false} /></Card>
+        <Card><h2 className="mb-4 text-xl font-bold">Concept Depth</h2><MasteryBarChart data={data.byDepth} percent={false} /><DepthExplanation /></Card>
         <Card><h2 className="mb-4 text-xl font-bold">Score Bands</h2><MasteryBarChart data={data.scoreBands} percent={false} /></Card>
         <Card><h2 className="mb-4 text-xl font-bold">Weakest Concepts</h2><MasteryBarChart data={data.weakConcepts} percent={false} /></Card>
       </div>

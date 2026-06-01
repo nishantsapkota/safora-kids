@@ -1,5 +1,7 @@
 import { ArrowRight, HeartPulse, House, ShieldCheck, Sparkles, TrafficCone, Waves } from "lucide-react";
+import { redirect } from "next/navigation";
 import { ButtonLink, Card } from "@/components/ui";
+import { getCurrentUser } from "@/lib/auth";
 
 const modules = [
   ["Traffic Rule and Road Safety", TrafficCone],
@@ -9,7 +11,12 @@ const modules = [
   ["Good Habits and Health Hygiene", Sparkles]
 ] as const;
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const user = await getCurrentUser();
+
+  if (user?.role === "admin") redirect("/admin");
+  if (user) redirect("/dashboard");
+
   return (
     <div>
       <section className="bg-white">

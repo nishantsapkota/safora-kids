@@ -17,12 +17,30 @@ import {
 
 const COLORS = ["#2563eb", "#1f9d55", "#f97316", "#dc2626", "#7c3aed", "#0f766e"];
 
-export function MasteryBarChart({ data, percent = true }: { data: { name: string; value: number }[]; percent?: boolean }) {
+export function MasteryBarChart({
+  data,
+  percent = true,
+  verticalLabels = false,
+  height = 240
+}: {
+  data: { name: string; value: number }[];
+  percent?: boolean;
+  verticalLabels?: boolean;
+  height?: number;
+}) {
   return (
-    <ResponsiveContainer width="100%" height={240}>
-      <BarChart data={data}>
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={data} margin={verticalLabels ? { top: 5, right: 20, bottom: 95, left: 0 } : undefined}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+        <XAxis
+          dataKey="name"
+          height={verticalLabels ? 120 : undefined}
+          interval={0}
+          tick={verticalLabels ? { fontSize: 12, width: 120 } : { fontSize: 12 }}
+          angle={verticalLabels ? 90 : 0}
+          textAnchor={verticalLabels ? "start" : "middle"}
+          tickFormatter={(name) => String(name).replaceAll("_", " ")}
+        />
         <YAxis domain={percent ? [0, 100] : undefined} />
         <Tooltip />
         <Bar dataKey="value" radius={[6, 6, 0, 0]}>

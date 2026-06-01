@@ -12,5 +12,5 @@ export async function POST(request: Request) {
   const user = await prisma.user.findUnique({ where: { studentId: parsed.data.studentId } });
   if (!user || !(await verifyPassword(parsed.data.password, user.passwordHash))) return jsonError("Invalid login.", 401);
   await setAuthCookie(await signToken(user));
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, role: user.role });
 }

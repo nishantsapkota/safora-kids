@@ -3,17 +3,13 @@ import { DistributionPieChart, MasteryBarChart } from "@/components/charts";
 import { Card } from "@/components/ui";
 import { getCurrentUser } from "@/lib/auth";
 import { adminDashboard } from "@/lib/dashboard";
-import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin-shell";
 
 export default async function AiAnalyticsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (user.role !== "admin") redirect("/dashboard");
-  const [data, logs] = await Promise.all([
-    adminDashboard(),
-    prisma.aiSelectionLog.findMany({ orderBy: { createdAt: "desc" }, take: 20 })
-  ]);
+  const data = await adminDashboard();
 
   return (
     <AdminShell title="AI Performance" description="How adaptive selection, spaced repetition, and mastery assessment are working.">
@@ -34,22 +30,14 @@ export default async function AiAnalyticsPage() {
         <Card>
           <h2 className="mb-4 text-xl font-bold">Selection Reasons</h2>
           <DistributionPieChart data={data.aiReasonData} />
-        </Card>
-        <Card>
-          <h2 className="mb-4 text-xl font-bold">Weak Concepts Targeted</h2>
-          <MasteryBarChart data={data.weakConcepts} percent={false} />
-        </Card>
-        <Card>
-          <h2 className="text-xl font-bold">Recent Strategy Logs</h2>
-          <div className="mt-4 space-y-3">
-            {logs.map((log) => (
-              <div key={log.id} className="rounded-md bg-slate-50 p-3">
-                <p className="font-semibold">{log.strategyUsed}</p>
-                <p className="text-sm text-slate-600">{log.selectedReason}</p>
-              </div>
-            ))}
-            {!logs.length ? <p className="text-slate-600">No AI selection logs yet.</p> : null}
+          <div className="mt-4 space-y-2 text-sm leading-6 text-slate-700">
+            <p><span className="font-semibold text-safety-ink">low_mastery</span> means the student has lower mastery in that module, so the system selects more practice from it.</p>
+            <p><span className="font-semibold text-safety-ink">due_review</span> means the concept is due for spaced-repetition review based on previous attempts.</p>
           </div>
+        </Card>
+        <Card className="lg:col-span-2">
+          <h2 className="mb-4 text-xl font-bold">Weak Concepts Targeted</h2>
+          <MasteryBarChart data={data.weakConcepts} percent={false} verticalLabels height={360} />
         </Card>
       </div>
     </AdminShell>
