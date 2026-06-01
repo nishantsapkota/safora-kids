@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String          @id @default(cuid())
+  studentId    String          @unique
+  passwordHash String
+  ageGroup     String
+  role         String          @default("student")
+  createdAt    DateTime        @default(now())
+  currentWeek  Int             @default(1)
+  totalXp      Int             @default(0)
+  isCompleted  Boolean         @default(false)
+  passed       Boolean         @default(false)
+  sessions     Session[]
+  attempts     Attempt[]
+  masteries    ModuleMastery[]
+}
+
+model Question {
+  id                String     @id
+  module            String
+  subtopic          String
+  difficulty        String
+  ageGroup          String
+  question          String
+  options           Json
+  correctAnswer     Int
+  explanation       String
+  learningObjective String
+  masteryConcept    String
+  variantGroup      String
+  repeatPriority    Int        @default(1)
+  aiEligible        Boolean    @default(true)
+  conceptDepth      Int        @default(1)
+  createdAt         DateTime   @default(now())
+  attempts          Attempt[]
+}
+
+model Session {
+  id             String    @id @default(cuid())
+  userId         String
+  sessionDate    DateTime
+  weekNumber     Int
+  dayPattern     String
+  totalQuestions Int       @default(25)
+  correctCount   Int       @default(0)
+  wrongCount     Int       @default(0)
+  scorePercent   Float     @default(0)
+  completed      Boolean   @default(false)
+  questionIds    Json
+  currentIndex   Int       @default(0)
+  createdAt      DateTime  @default(now())
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attempts       Attempt[]
+}
+
+model Attempt {
+  id              String   @id @default(cuid())
+  userId          String
+  sessionId       String
+  questionId      String
+  selectedAnswer  Int
+  isCorrect       Boolean
+  responseTimeSec Int?
+  shownOptions    Json
+  answeredAt      DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session         Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question        Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model ModuleMastery {
+  id            String   @id @default(cuid())
+  userId        String
+  module        String
+  masteryScore  Float    @default(0)
+  attemptsCount Int      @default(0)
+  correctCount  Int      @default(0)
+  lastUpdated   DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, module])
+}
+
+model QuestionSchedule {
+  id           String    @id @default(cuid())
+  userId       String
+  questionId   String
+  nextDueDate  DateTime
+  intervalDays Int       @default(1)
+  masteryLevel Float     @default(0)
+  lastSeen     DateTime?
+  timesSeen    Int       @default(0)
+  timesCorrect Int       @default(0)
+
+  @@unique([userId, questionId])
+}
+
+model AiSelectionLog {
+  id               String   @id @default(cuid())
+  userId           String
+  sessionId        String?
+  selectedReason   String
+  selectedModules  Json
+  selectedConcepts Json
+  questionIds      Json
+  strategyUsed     String
+  createdAt        DateTime @default(now())
+}
+
+model AppSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}
